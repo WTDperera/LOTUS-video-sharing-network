@@ -1,0 +1,44 @@
+# Jenkins CI/CD Server - Docker Compose Configuration
+# Senior DevOps Setup for Lotus Video Platform
+
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: lotus-jenkins
+    restart: unless-stopped
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"   # Jenkins Web UI
+      - "50000:50000" # Jenkins Agent Communication Port
+    volumes:
+      # Persist Jenkins data (configs, jobs, plugins)
+      - jenkins_home:/var/jenkins_home
+      
+      # Docker-in-Docker: Access host Docker daemon
+      # This allows Jenkins to build Docker images using host Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      # Optional: Share Docker binary (uncomment if needed)
+      # - /usr/bin/docker:/usr/bin/docker
+    environment:
+      # Jenkins Java Options
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djava.awt.headless=true
+      
+      # Jenkins Options
+      - JENKINS_OPTS=--httpPort=8080
+      
+      # Docker Host (for Docker-in-Docker)
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    networks:
+      - jenkins-network
+
+volumes:
+  jenkins_home:
+    driver: local
+
+networks:
+  jenkins-network:
+    driver: bridge

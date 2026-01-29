@@ -1,0 +1,14 @@
+# Jenkins Environment Variables
+.env
+
+# Backup Files
+*.tar.gz
+jenkins-backup.tar.gz
+
+# Log Files
+*.log
+
+# Temporary Files
+*.tmp
+*.swp
+*~
