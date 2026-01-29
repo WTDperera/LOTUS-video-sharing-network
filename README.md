@@ -89,3 +89,4 @@ This modular structure is optimized for Docker deployment:
 - CORS configured for local development
 - All uploads and static files handled by server
 Testing Jenkins Auto Trigger 123
+change
