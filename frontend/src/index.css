@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar for that Netflix feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #303030;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+body {
+  @apply bg-dark-500 text-white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility classes */
+.card-hover {
+  @apply hover:scale-105 hover:shadow-xl transition-transform duration-300 ease-out;
+}
+
+.btn-primary {
+  @apply bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-6 rounded transition-all;
+}
+
+.btn-secondary {
+  @apply bg-dark-200 hover:bg-dark-100 text-white font-semibold py-2 px-6 rounded transition-all;
+}
+
+/* Shaka Player Custom Styling */
+.shaka-video-container {
+  background-color: #000;
+}
+
+.shaka-controls-button-panel {
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.shaka-play-button,
+.shaka-volume-bar-container,
+.shaka-current-time,
+.shaka-time-divider,
+.shaka-duration,
+.shaka-fullscreen-button,
+.shaka-settings-button {
+  color: #fff !important;
+}
+
+.shaka-seek-bar-container {
+  background-color: rgba(255,255,255,0.3);
+}
+
+.shaka-seek-bar {
+  background-color: #E50914;
+}
+
+.shaka-ad-markers {
+  background-color: #E50914;
+}
+
+.shaka-volume-bar {
+  background-color: #E50914;
+}
