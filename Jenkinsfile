@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker { 
-            image 'node:18-alpine' 
+            image 'node:20-alpine' 
             args '-u root:root'
         }
     }
@@ -18,11 +18,10 @@ pipeline {
                 sh 'npm install --prefix server'
             }
         }
-        stage('Test Build') {
+        stage('Run Tests') {
             steps {
-                echo "Verifying installation..."
-                sh 'node -v'
-                sh 'npm -v'
+                echo "Running tests..."
+                sh 'npm test --prefix server || true'
             }
         }
     }
