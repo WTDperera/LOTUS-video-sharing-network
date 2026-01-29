@@ -25,18 +25,17 @@ pipeline {
             steps {
                 echo "Deploying Application..."
                 
-                // Build Images
+                // 1. Build Images
                 sh 'docker build -t lotus-server ./server'
                 sh 'docker build -t lotus-client ./client'
                 
-                // Clean up old containers/networks
-                sh 'docker stop lotus-server || true'
-                sh 'docker rm lotus-server || true'
-                sh 'docker stop lotus-client || true'
-                sh 'docker rm lotus-client || true'
+                // 2. Clean up old containers & network
+                sh 'docker rm -f lotus-server || true'
+                sh 'docker rm -f lotus-client || true'
                 sh 'docker network create lotus-net || true'
 
-                // Run Server (WITH ATLAS URI & SECRETS)
+                // 3. Run Server (WITH SECRETS)
+                // Note: Connecting to Atlas.
                 sh """
                     docker run -d \
                     --name lotus-server \
@@ -49,7 +48,7 @@ pipeline {
                     lotus-server
                 """
 
-                // Run Client (Connects to 'server' alias via lotus-net)
+                // 4. Run Client
                 sh """
                     docker run -d \
                     --name lotus-client \
