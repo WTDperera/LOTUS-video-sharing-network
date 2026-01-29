@@ -1,0 +1,66 @@
+// Docker Compose Configuration for Lotus Video Platform
+// This file structure is ready for containerization
+
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: lotus-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - lotus-network
+
+  # Backend Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: lotus-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/lotus_video?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE: 7d
+      ALLOWED_ORIGINS: http://localhost:5173,https://yourdomain.com
+    volumes:
+      - ./server/uploads:/app/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - lotus-network
+
+  # Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: lotus-client
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    environment:
+      VITE_API_URL: http://localhost:5000
+    depends_on:
+      - server
+    networks:
+      - lotus-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  lotus-network:
+    driver: bridge

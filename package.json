@@ -1,31 +1,27 @@
 {
-  "name": "lotus-video-server",
-  "version": "1.0.0",
-  "description": "",
+  "name": "lotus-video-platform",
+  "version": "2.0.0",
+  "description": "Lotus Video Streaming Platform - Modular Architecture",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "seed": "node scripts/seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "npm start --prefix server",
+    "client": "npm run dev --prefix client",
+    "server:prod": "npm start --prefix server",
+    "client:build": "npm run build --prefix client",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "clean": "rimraf client/node_modules server/node_modules node_modules"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "video",
+    "streaming",
+    "platform",
+    "modular",
+    "microservices"
+  ],
+  "author": "Lotus Platform Team",
   "license": "ISC",
-  "dependencies": {
-    "axios": "^1.13.4",
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "express-mongo-sanitize": "^2.2.0",
-    "express-rate-limit": "^8.2.1",
-    "express-validator": "^7.3.1",
-    "fluent-ffmpeg": "^2.1.3",
-    "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.5",
-    "multer": "^2.0.2",
-    "validator": "^13.15.26"
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
