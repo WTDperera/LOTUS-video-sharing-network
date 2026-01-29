@@ -43,7 +43,7 @@ pipeline {
                     --network-alias server \
                     -p 5000:5000 \
                     -e PORT=5000 \
-                    -e MONGODB_URI='mongodb+srv://wtdperera2001:password@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority' \
+                    -e MONGODB_URI='mongodb+srv://wtdperera2001:s.RhdiPmRi52n5!@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority' \
                     -e JWT_SECRET='tharindu_super_secret_key_2026' \
                     lotus-server
                 """
