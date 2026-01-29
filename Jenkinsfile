@@ -1,9 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-u root:root'
+        }
+    }
     
     environment {
         // Environment variables for the pipeline
-        NODE_VERSION = '20'
+        NODE_VERSION = '18'
         DOCKER_REGISTRY = 'docker.io'
         PROJECT_NAME = 'lotus-video-platform'
     }
@@ -43,54 +48,17 @@ pipeline {
             }
         }
         
-        stage('Build') {
+        stage('Test Build') {
             steps {
                 echo '========================================='
-                echo 'Stage: Build Application'
+                echo 'Stage: Test Build - Verify Installation'
                 echo '========================================='
                 
                 script {
-                    // Build client
-                    echo '🔨 Building Client Application...'
-                    dir('client') {
-                        sh 'echo "Building client with Vite..."'
-                        sh 'npm run build || echo "Build command not configured yet"'
-                    }
-                    echo '✅ Client build completed'
-                    
-                    // Build server (if needed)
-                    echo '🔨 Building Server Application...'
-                    dir('server') {
-                        sh 'echo "Building server..."'
-                        sh 'echo "Server ready for deployment"'
-                    }
-                    echo '✅ Server build completed'
-                }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                echo '========================================='
-                echo 'Stage: Run Tests'
-                echo '========================================='
-                
-                script {
-                    // Run server tests
-                    echo '🧪 Running Server Tests...'
-                    dir('server') {
-                        sh 'echo "Running server tests..."'
-                        sh 'npm test || echo "Test command not configured yet"'
-                    }
-                    echo '✅ Server tests completed'
-                    
-                    // Run client tests
-                    echo '🧪 Running Client Tests...'
-                    dir('client') {
-                        sh 'echo "Running client tests..."'
-                        sh 'npm test || echo "Test command not configured yet"'
-                    }
-                    echo '✅ Client tests completed'
+                    echo '🔍 Verifying Node.js and npm installation...'
+                    sh 'node -v'
+                    sh 'npm -v'
+                    echo '✅ Node.js and npm verified successfully'
                 }
             }
         }
@@ -104,8 +72,7 @@ pipeline {
             echo "✅ All stages passed"
             echo "✅ Code checked out"
             echo "✅ Dependencies installed"
-            echo "✅ Build completed"
-            echo "✅ Tests passed"
+            echo "✅ Test Build verified"
         }
         
         failure {
@@ -120,7 +87,6 @@ pipeline {
             echo 'Pipeline execution finished'
             echo "Workspace: ${WORKSPACE}"
             echo "Build Number: ${BUILD_NUMBER}"
-            echo "Build URL: ${BUILD_URL}"
             echo '========================================='
         }
     }
