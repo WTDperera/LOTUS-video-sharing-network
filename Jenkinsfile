@@ -47,12 +47,12 @@ pipeline {
                     lotus-server
                 """
 
-                // 4. Run Client
+                // 4. Run Client (Map external 3000 to internal 80)
                 sh """
                     docker run -d \
                     --name lotus-client \
                     --network lotus-net \
-                    -p 3000:3000 \
+                    -p 3000:80 \
                     lotus-client
                 """
                 
