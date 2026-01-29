@@ -9,10 +9,24 @@ const SecurityConfig = require('../config/security');
 const logger = require('../utils/logger');
 
 class SecurityMiddleware {
+  constructor() {
+    // Initialize rate limiters ONCE at startup to avoid ValidationError
+    const rateLimitConfig = SecurityConfig.getRateLimitConfig();
+
+    // General API rate limit
+    this.generalLimiter = rateLimit(rateLimitConfig.general);
+
+    // Auth endpoints - stricter limits
+    this.authLimiter = rateLimit(rateLimitConfig.auth);
+
+    // Upload endpoints - file upload limits
+    this.uploadLimiter = rateLimit(rateLimitConfig.upload);
+  }
+
   /**
    * SECURITY: Apply all security middleware
    */
-  static applySecurityMiddleware(app) {
+  applySecurityMiddleware(app) {
     // 1. Helmet - Security headers
     app.use(helmet(SecurityConfig.getHelmetConfig()));
     
@@ -30,29 +44,20 @@ class SecurityMiddleware {
    * SECURITY: Rate limiting configuration
    * ATTACK PREVENTION: Brute force, DDoS
    */
-  static applyRateLimiting(app) {
-    const rateLimitConfig = SecurityConfig.getRateLimitConfig();
-
-    // General API rate limit
-    const generalLimiter = rateLimit(rateLimitConfig.general);
-    app.use('/api/', generalLimiter);
-
-    // Auth endpoints - stricter limits
-    const authLimiter = rateLimit(rateLimitConfig.auth);
-    app.use('/api/auth/login', authLimiter);
-    app.use('/api/auth/register', authLimiter);
-
-    // Upload endpoints - file upload limits
-    const uploadLimiter = rateLimit(rateLimitConfig.upload);
-    app.use('/api/videos/upload', uploadLimiter);
-    app.use('/api/auth/upload-avatar', uploadLimiter);
+  applyRateLimiting(app) {
+    // Use pre-initialized limiters
+    app.use('/api/', this.generalLimiter);
+    app.use('/api/auth/login', this.authLimiter);
+    app.use('/api/auth/register', this.authLimiter);
+    app.use('/api/videos/upload', this.uploadLimiter);
+    app.use('/api/auth/upload-avatar', this.uploadLimiter);
   }
 
   /**
    * SECURITY: Request size limits
    * ATTACK PREVENTION: Memory exhaustion attacks
    */
-  static applyRequestSizeLimits(app) {
+  applyRequestSizeLimits(app) {
     // Already handled by express.json({ limit }) in middleware.js
     // This is a reminder to keep those limits in place
   }
@@ -60,7 +65,7 @@ class SecurityMiddleware {
   /**
    * SECURITY: Monitor and log security events
    */
-  static applySecurityMonitoring(app) {
+  applySecurityMonitoring(app) {
     app.use((req, res, next) => {
       // Log suspicious patterns
       const suspiciousPatterns = [
@@ -93,7 +98,7 @@ class SecurityMiddleware {
   /**
    * SECURITY: HTTPS redirect in production
    */
-  static forceHTTPS() {
+  forceHTTPS() {
     return (req, res, next) => {
       if (process.env.NODE_ENV === 'production' && process.env.FORCE_HTTPS === 'true') {
         if (req.headers['x-forwarded-proto'] !== 'https') {
@@ -107,7 +112,7 @@ class SecurityMiddleware {
   /**
    * SECURITY: Remove sensitive headers
    */
-  static removeSensitiveHeaders() {
+  removeSensitiveHeaders() {
     return (req, res, next) => {
       res.removeHeader('X-Powered-By');
       next();
@@ -115,4 +120,4 @@ class SecurityMiddleware {
   }
 }
 
-module.exports = SecurityMiddleware;
+module.exports = new SecurityMiddleware();
