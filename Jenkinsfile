@@ -80,10 +80,13 @@ pipeline {
                                 --name lotus-server \
                                 --network lotus-net \
                                 --network-alias server \
+                                --dns 8.8.8.8 \
+                                --dns 8.8.4.4 \
                                 -p 5000:5000 \
                                 -e PORT=5000 \
                                 -e MONGODB_URI="mongodb+srv://wtdperera2001:s.RhdiPmRi52n5!@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority" \
                                 -e JWT_SECRET="tharindu_super_secret_key_2026_secured_version" \
+                                -e NODE_ENV="production" \
                                 ${DOCKERHUB_USERNAME}/lotus-server:latest
                                 
                                 echo "Starting lotus-client..."

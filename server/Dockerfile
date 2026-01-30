@@ -1,12 +1,22 @@
 # ==============================================
 # SERVER DOCKERFILE
-# Optimized for production deployment
+# Optimized for production deployment with DNS fix
 # ==============================================
 
 FROM node:20-alpine AS base
 
-# Install ffmpeg for video processing
-RUN apk add --no-cache ffmpeg
+# FIX: Install ca-certificates and dnsmasq for proper DNS resolution in Alpine
+# This fixes MongoDB Atlas DNS lookup errors (querySrv ENOTFOUND)
+RUN apk add --no-cache \
+    ffmpeg \
+    ca-certificates \
+    dnsmasq \
+    bind-tools \
+    && update-ca-certificates
+
+# FIX: Configure DNS to use Google DNS (8.8.8.8) for reliable resolution
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 WORKDIR /app
 
