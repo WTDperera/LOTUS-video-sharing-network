@@ -179,9 +179,10 @@ class InputValidator {
    */
   static validateVideoId() {
     return (req, res, next) => {
-      const { id } = req.params;
+      // Check both 'id' and 'videoId' params (different routes use different names)
+      const videoId = req.params.id || req.params.videoId;
 
-      if (!this.validateObjectId(id)) {
+      if (!videoId || !this.validateObjectId(videoId)) {
         return res.status(400).json({
           success: false,
           message: 'Invalid video ID format',

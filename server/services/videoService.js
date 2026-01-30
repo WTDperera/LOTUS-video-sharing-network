@@ -221,10 +221,13 @@ class VideoService {
    * @returns {Object} Formatted video object
    */
   formatVideoForResponse(videoDocument, serverPort, userId = null) {
+    // Use environment variable for base URL or default to localhost (for development)
+    const baseUrl = process.env.BASE_URL || `http://localhost:${serverPort}`;
+    
     // Use actual thumbnail if available, otherwise use placeholder
     const thumbnailUrl = videoDocument.thumbnail 
-      ? `http://localhost:${serverPort}${videoDocument.thumbnail}`
-      : `http://localhost:${serverPort}/api/videos/${videoDocument._id}/thumbnail`;
+      ? `${baseUrl}${videoDocument.thumbnail}`
+      : `${baseUrl}/api/videos/${videoDocument._id}/thumbnail`;
 
     return {
       id: videoDocument._id,
@@ -242,7 +245,7 @@ class VideoService {
       uploaderAvatar: videoDocument.uploaderAvatar,
       userId: videoDocument.userId,
       size: videoDocument.size,
-      streamUrl: `http://localhost:${serverPort}/video/${videoDocument._id}`,
+      streamUrl: `${baseUrl}/video/${videoDocument._id}`,
     };
   }
 
