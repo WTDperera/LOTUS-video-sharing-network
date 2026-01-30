@@ -56,15 +56,21 @@ class MiddlewareConfigurator {
     // SECURITY: Input sanitization
     app.use(InputValidator.sanitizeRequestBody());
 
-    // Static file serving (after security middleware, with CORS headers)
-    app.use('/uploads', cors(SecurityConfig.getCorsConfig()), express.static('uploads', {
+    // Static file serving with explicit CORS for media files
+    // Critical: Video/image thumbnails need unrestricted access for browser playback
+    app.use('/uploads', (req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length');
+      next();
+    }, express.static('uploads', {
       // SECURITY: Disable directory listing
       index: false,
       // SECURITY: Set cache control headers
       setHeaders: (res) => {
         res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
         res.set('X-Content-Type-Options', 'nosniff');
-        res.set('Access-Control-Allow-Origin', '*');
       },
     }));
 

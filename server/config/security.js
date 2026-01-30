@@ -160,22 +160,38 @@ class SecurityConfig {
 
   /**
    * SECURITY: CORS configuration
-   * VULNERABILITY FIX: Restrict allowed origins
+   * Professional-grade: Environment-agnostic with dynamic origin validation
    */
   static getCorsConfig() {
-    // SECURITY: Only allow specific origins in production
+    // Dynamic origin list from environment or defaults
     const allowedOrigins = process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',')
       : [
           'http://localhost:3000',
-          'http://localhost:5173',  // Vite dev server (client)
-          'http://localhost:5174',  // Alternative Vite port
-          'http://16.171.153.33',   // AWS EC2 Production
+          'http://localhost:5173',    // Vite dev server
+          'http://localhost:5174',    // Alternative Vite port
+          'http://16.171.153.33',     // AWS EC2 Production frontend
+          'http://16.171.153.33:80',  // Explicit port
         ];
 
     return {
-      origin: '*', // TEMP: Allow all origins for AWS troubleshooting
-      credentials: false, // Must be false when origin is *
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          // In production, be strict. In development, allow all.
+          if (process.env.NODE_ENV === 'production') {
+            callback(new Error('CORS policy: Origin not allowed'));
+          } else {
+            callback(null, true); // Allow in dev mode for testing
+          }
+        }
+      },
+      credentials: true, // Allow credentials with specific origins
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Range'],
       exposedHeaders: ['Content-Range', 'X-Content-Range', 'Accept-Ranges', 'Content-Length'],

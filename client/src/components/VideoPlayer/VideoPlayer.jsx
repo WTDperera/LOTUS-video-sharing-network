@@ -23,37 +23,43 @@ const VideoPlayer = ({ videoId, thumbnail, title }) => {
     const video = videoRef.current;
     const container = containerRef.current;
     
-    // Initialize Shaka Player
-    const player = new shaka.Player(video);
+    // Initialize Shaka Player (v5.0 compliant - use attach() method)
+    const player = new shaka.Player();
     playerRef.current = player;
 
-    // Initialize UI
-    const ui = new shaka.ui.Overlay(player, container, video);
-    const controls = ui.getControls();
-
-    // Configure player
-    player.configure({
-      streaming: {
-        bufferingGoal: 30,
-        rebufferingGoal: 2,
-        bufferBehind: 30,
-      },
+    // Attach player to video element
+    player.attach(video).then(() => {
+      // Initialize UI after attachment
+      const ui = new shaka.ui.Overlay(player, container, video);
+      const controls = ui.getControls();
     });
 
-    // Error handling
-    player.addEventListener('error', (event) => {
-      console.error('Shaka Player Error:', event.detail);
-    });
+      // Configure player
+      player.configure({
+        streaming: {
+          bufferingGoal: 30,
+          rebufferingGoal: 2,
+          bufferBehind: 30,
+        },
+      });
 
-    // Load video source
-    const videoUrl = getStreamingUrl(videoId);
-    
-    player.load(videoUrl).then(() => {
-      console.log('Video loaded successfully!');
+      // Error handling
+      player.addEventListener('error', (event) => {
+        console.error('Shaka Player Error:', event.detail);
+      });
+
+      // Load video source
+      const videoUrl = getStreamingUrl(videoId);
+      
+      player.load(videoUrl).then(() => {
+        console.log('Video loaded successfully!');
+      }).catch((error) => {
+        console.error('Error loading video:', error);
+        // Fallback to native video player
+        video.src = videoUrl;
+      });
     }).catch((error) => {
-      console.error('Error loading video:', error);
-      // Fallback to native video player
-      video.src = videoUrl;
+      console.error('Error attaching player:', error);
     });
 
     // Cleanup
