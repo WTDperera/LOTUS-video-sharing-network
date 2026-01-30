@@ -32,7 +32,6 @@ const VideoPlayer = ({ videoId, thumbnail, title }) => {
       // Initialize UI after attachment
       const ui = new shaka.ui.Overlay(player, container, video);
       const controls = ui.getControls();
-    });
 
       // Configure player
       player.configure({
