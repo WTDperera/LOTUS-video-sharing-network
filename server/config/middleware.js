@@ -56,14 +56,15 @@ class MiddlewareConfigurator {
     // SECURITY: Input sanitization
     app.use(InputValidator.sanitizeRequestBody());
 
-    // Static file serving (after security middleware)
-    app.use('/uploads', express.static('uploads', {
+    // Static file serving (after security middleware, with CORS headers)
+    app.use('/uploads', cors(SecurityConfig.getCorsConfig()), express.static('uploads', {
       // SECURITY: Disable directory listing
       index: false,
       // SECURITY: Set cache control headers
       setHeaders: (res) => {
         res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
         res.set('X-Content-Type-Options', 'nosniff');
+        res.set('Access-Control-Allow-Origin', '*');
       },
     }));
 

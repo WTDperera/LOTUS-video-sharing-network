@@ -11,35 +11,21 @@ const { errorHandler, notFound } = require('../middleware/errorHandler');
 
 class RouteConfigurator {
   /**
-   * PERFORMANCE: Lazy load routes to reduce startup time
-   * Routes are loaded on-demand when first request hits them
-   * Reduces initial memory footprint by ~30% and startup time by ~40%
-   * 
-   * OPTIMIZATION ANALYSIS:
-   * - Eager loading: All routes loaded at startup (~200ms)
-   * - Lazy loading: Routes loaded when accessed (~5ms per route)
-   * - For 4 route modules: Saves ~180ms on cold start
+   * Configure all application routes
+   * Using direct imports for reliability
    */
   static configureRoutes(app) {
-    // OPTIMIZATION: Lazy loading using Express 5 async route loading
-    // Routes are only require()'d when first request matches the path
+    // Import route modules
+    const authRoutes = require('../routes/auth');
+    const videoRoutes = require('../routes/video');
+    const commentRoutes = require('../routes/comment');
+    const streamingRoutes = require('../routes/streaming');
     
-    app.use('/api/auth', (req, res, next) => {
-      // PERFORMANCE: Dynamic import loads module only on first auth request
-      require('../routes/auth')(req, res, next);
-    });
-    
-    app.use('/api/videos', (req, res, next) => {
-      require('../routes/video')(req, res, next);
-    });
-    
-    app.use('/api', (req, res, next) => {
-      require('../routes/comment')(req, res, next);
-    });
-    
-    app.use('/video', (req, res, next) => {
-      require('../routes/streaming')(req, res, next);
-    });
+    // Mount routes
+    app.use('/api/auth', authRoutes);
+    app.use('/api/videos', videoRoutes);
+    app.use('/api', commentRoutes);
+    app.use('/video', streamingRoutes);
 
     // Error handling middleware (must be last)
     app.use(notFound);

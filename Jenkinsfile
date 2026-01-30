@@ -71,23 +71,27 @@ pipeline {
                                 echo "Setting up network..."
                                 docker network create lotus-net || true
                                 
+                                echo "Creating persistent volumes..."
+                                mkdir -p ~/lotus-uploads/videos ~/lotus-uploads/thumbnails ~/lotus-uploads/avatars
+                                
                                 echo "Stopping old containers..."
                                 docker rm -f lotus-server || true
                                 docker rm -f lotus-client || true
                                 
                                 echo "Starting lotus-server..."
-                                docker run -d \
-                                --name lotus-server \
-                                --network lotus-net \
-                                --network-alias server \
-                                --dns 8.8.8.8 \
-                                --dns 8.8.4.4 \
-                                -p 5000:5000 \
-                                -e PORT=5000 \
-                                -e BASE_URL="http://16.171.153.33:5000" \
-                                -e MONGODB_URI="mongodb+srv://wtdperera2001:s.RhdiPmRi52n5!@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority" \
-                                -e JWT_SECRET="tharindu_super_secret_key_2026_secured_version" \
-                                -e NODE_ENV="production" \
+                                docker run -d \\
+                                --name lotus-server \\
+                                --network lotus-net \\
+                                --network-alias server \\
+                                --dns 8.8.8.8 \\
+                                --dns 8.8.4.4 \\
+                                -p 5000:5000 \\
+                                -v ~/lotus-uploads:/app/uploads \\
+                                -e PORT=5000 \\
+                                -e BASE_URL="http://16.171.153.33:5000" \\
+                                -e MONGODB_URI="mongodb+srv://wtdperera2001:s.RhdiPmRi52n5!@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority" \\
+                                -e JWT_SECRET="tharindu_super_secret_key_2026_secured_version" \\
+                                -e NODE_ENV="production" \\
                                 ${DOCKERHUB_USERNAME}/lotus-server:latest
                                 
                                 echo "Starting lotus-client..."
