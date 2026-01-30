@@ -14,10 +14,6 @@ RUN apk add --no-cache \
     bind-tools \
     && update-ca-certificates
 
-# FIX: Configure DNS to use Google DNS (8.8.8.8) for reliable resolution
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-
 WORKDIR /app
 
 # Copy package files
