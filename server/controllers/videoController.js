@@ -281,17 +281,7 @@ class VideoController {
       const fileSize = stat.size;
       const range = req.headers.range;
 
-      // Set CORS headers for video streaming
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Range');
-      res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges');
-      res.setHeader('Accept-Ranges', 'bytes');
-
-      // Handle OPTIONS request
-      if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-      }
+      // CORS headers are already set by the streaming router middleware
 
       if (range) {
         // Parse Range header

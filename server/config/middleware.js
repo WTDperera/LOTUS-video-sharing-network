@@ -56,19 +56,29 @@ class MiddlewareConfigurator {
     // SECURITY: Input sanitization
     app.use(InputValidator.sanitizeRequestBody());
 
-    // Static file serving with explicit CORS for media files
-    // Critical: Video/image thumbnails need unrestricted access for browser playback
+    // CRITICAL: Static file CORS must be PERMISSIVE for browser media playback
+    // This middleware runs BEFORE express.static to set headers on ALL /uploads requests
     app.use('/uploads', (req, res, next) => {
+      // Set CORS headers for all upload requests (thumbnails, videos, avatars)
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type');
-      res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length');
+      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Range');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      
+      // Handle preflight
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
       next();
-    }, express.static('uploads', {
+    });
+    
+    // Static file serving
+    app.use('/uploads', express.static('uploads', {
       // SECURITY: Disable directory listing
       index: false,
       // SECURITY: Set cache control headers
-      setHeaders: (res) => {
+      setHeaders: (res, path) => {
         res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
         res.set('X-Content-Type-Options', 'nosniff');
       },

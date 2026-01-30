@@ -161,6 +161,7 @@ class SecurityConfig {
   /**
    * SECURITY: CORS configuration
    * Professional-grade: Environment-agnostic with dynamic origin validation
+   * Note: Media streaming uses separate wildcard CORS (see middleware.js)
    */
   static getCorsConfig() {
     // Dynamic origin list from environment or defaults
@@ -172,11 +173,11 @@ class SecurityConfig {
           'http://localhost:5174',    // Alternative Vite port
           'http://16.171.153.33',     // AWS EC2 Production frontend
           'http://16.171.153.33:80',  // Explicit port
-        ];
+      ];
 
     return {
       origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Postman)
+        // Allow requests with no origin (mobile apps, curl, Postman, same-origin)
         if (!origin) return callback(null, true);
         
         // Check if origin is in allowed list
@@ -185,13 +186,14 @@ class SecurityConfig {
         } else {
           // In production, be strict. In development, allow all.
           if (process.env.NODE_ENV === 'production') {
-            callback(new Error('CORS policy: Origin not allowed'));
+            console.warn(`CORS blocked origin: ${origin}`);
+            callback(null, false); // Block but don't throw error
           } else {
             callback(null, true); // Allow in dev mode for testing
           }
         }
       },
-      credentials: true, // Allow credentials with specific origins
+      credentials: false, // Changed to false for broader compatibility
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Range'],
       exposedHeaders: ['Content-Range', 'X-Content-Range', 'Accept-Ranges', 'Content-Length'],
