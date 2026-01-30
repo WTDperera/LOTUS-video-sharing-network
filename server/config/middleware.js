@@ -49,7 +49,9 @@ class MiddlewareConfigurator {
     }));
 
     // SECURITY: NoSQL injection prevention
-    app.use(InputValidator.sanitizeNoSQLInjection());
+    // TEMPORARILY DISABLED: express-mongo-sanitize incompatible with Express 5.x
+    // TODO: Find alternative NoSQL injection prevention or downgrade Express
+    // app.use(InputValidator.sanitizeNoSQLInjection());
     
     // SECURITY: Input sanitization
     app.use(InputValidator.sanitizeRequestBody());
