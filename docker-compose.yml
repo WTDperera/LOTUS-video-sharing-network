@@ -1,82 +1,40 @@
-# Docker Compose Configuration for Lotus Video Platform
-# Local Development Setup - Ready to run with: docker-compose up --build
+# ==============================================
+# LOTUS VIDEO PLATFORM - DOCKER COMPOSE
+# Production-ready multi-container deployment
+# ==============================================
 
 version: '3.8'
 
 services:
-  # MongoDB Database
-  mongodb:
-    image: mongo:7.0
-    container_name: lotus-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: lotus_dev_password_2026
-      MONGO_INITDB_DATABASE: lotus_video
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - lotus-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://admin:lotus_dev_password_2026@localhost:27017/?authSource=admin --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Backend Server
   server:
     build:
       context: ./server
-      dockerfile: Dockerfile
     container_name: lotus-server
-    restart: unless-stopped
     ports:
       - "5000:5000"
-    environment:
-      NODE_ENV: production
-      PORT: 5000
-      MONGODB_URI: mongodb://admin:lotus_dev_password_2026@mongodb:27017/lotus_video?authSource=admin
-      JWT_SECRET: dev_jwt_secret_key_for_local_testing_32chars_minimum_required
-      JWT_EXPIRE: 7d
-      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:80,http://client:80
-      MAX_FILE_SIZE: 52428800
-      RATE_LIMIT_MAX: 100
-    volumes:
-      - ./server/uploads:/app/uploads
-    depends_on:
-      mongodb:
-        condition: service_healthy
     networks:
-      - lotus-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5000/api/videos"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - lotus-net
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb+srv://wtdperera2001:s.RhdiPmRi52n5!@lotus.jhbgi0u.mongodb.net/lotus_video?retryWrites=true&w=majority
+      - JWT_SECRET=tharindu_super_secret_key_2026_secured_version
+      - NODE_ENV=production
+    restart: unless-stopped
 
-  # Frontend Client (Nginx serving React build)
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5000/api
     container_name: lotus-client
-    restart: unless-stopped
     ports:
-      - "5173:80"
-    environment:
-      VITE_API_URL: http://localhost:5000
-    depends_on:
-      server:
-        condition: service_healthy
+      - "3000:80"
     networks:
-      - lotus-network
-
-volumes:
-  mongodb_data:
-    driver: local
+      - lotus-net
+    depends_on:
+      - server
+    restart: unless-stopped
 
 networks:
-  lotus-network:
+  lotus-net:
     driver: bridge
