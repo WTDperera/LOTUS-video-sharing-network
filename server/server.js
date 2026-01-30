@@ -26,7 +26,8 @@ class HttpServer {
   start() {
     return new Promise((resolve, reject) => {
       try {
-        this.server = this.app.listen(this.port, () => {
+        // DOCKER FIX: Bind to 0.0.0.0 to accept external connections
+        this.server = this.app.listen(this.port, '0.0.0.0', () => {
           logger.logServerBanner(this.port, this.environmentMode, API_ENDPOINTS);
           
           // PERFORMANCE: Configure server timeouts to prevent hanging connections

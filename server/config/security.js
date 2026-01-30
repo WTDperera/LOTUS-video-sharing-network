@@ -174,16 +174,7 @@ class SecurityConfig {
         ];
 
     return {
-      origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, postman)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
+      origin: true, // TEMP: Allow all origins for AWS troubleshooting
       credentials: true,
       optionsSuccessStatus: 200,
       maxAge: 86400, // 24 hours
