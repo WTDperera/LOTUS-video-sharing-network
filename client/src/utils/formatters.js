@@ -18,7 +18,8 @@ export const getAvatarUrl = (user) => {
       return user.avatar;
     }
     // If avatar is a path, prepend backend URL
-    return `http://localhost:5000${user.avatar}`;
+    const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    return `${API_BASE}${user.avatar}`;
   }
   
   const name = user.name || 'User';
@@ -76,10 +77,10 @@ export const formatViewCount = (views) => {
 /**
  * Generate streaming URL for video
  * @param {string} videoId - Video ID
- * @param {string} baseUrl - Base API URL (optional, defaults to localhost)
+ * @param {string} baseUrl - Base API URL (optional, defaults to env variable or localhost)
  * @returns {string} Streaming URL
  */
-export const getStreamingUrl = (videoId, baseUrl = 'http://localhost:5000') => {
+export const getStreamingUrl = (videoId, baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000') => {
   if (!videoId) return '';
   return `${baseUrl}/video/${videoId}`;
 };

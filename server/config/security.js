@@ -170,6 +170,7 @@ class SecurityConfig {
           'http://localhost:3000',
           'http://localhost:5173',  // Vite dev server (client)
           'http://localhost:5174',  // Alternative Vite port
+          'http://16.171.153.33',   // AWS EC2 Production
         ];
 
     return {

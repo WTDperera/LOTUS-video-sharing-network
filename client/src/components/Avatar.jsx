@@ -98,10 +98,13 @@ const resolveAvatarUrl = (avatarUrl) => {
   // Absolute URL - return as is
   if (avatarUrl.startsWith('http')) return avatarUrl;
   
-  // Relative path - prepend backend URL
-  if (avatarUrl.startsWith('/')) return `http://localhost:5000${avatarUrl}`;
+  // Get API URL from environment
+  const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
   
-  return `http://localhost:5000/${avatarUrl}`;
+  // Relative path - prepend backend URL
+  if (avatarUrl.startsWith('/')) return `${API_BASE}${avatarUrl}`;
+  
+  return `${API_BASE}/${avatarUrl}`;
 };
 
 /**

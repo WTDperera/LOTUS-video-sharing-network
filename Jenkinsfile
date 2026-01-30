@@ -45,7 +45,7 @@ pipeline {
                     
                     // Build and push client image
                     echo "Building client image..."
-                    sh "docker build -t ${DOCKERHUB_USERNAME}/lotus-client:latest ./client"
+                    sh "docker build --build-arg VITE_API_URL=http://16.171.153.33:5000/api -t ${DOCKERHUB_USERNAME}/lotus-client:latest ./client"
                     echo "Pushing client image..."
                     sh "docker push ${DOCKERHUB_USERNAME}/lotus-client:latest"
                     
