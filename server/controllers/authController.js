@@ -47,21 +47,24 @@ exports.register = [
   ...registrationValidationRules,
 
   async (req, res) => {
-    // Guard: Check validation errors
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: validationErrors.array(),
-      });
-    }
-
-    const { name, email, password } = req.body;
-
     try {
+      // Guard: Check validation errors
+      const validationErrors = validationResult(req);
+      if (!validationErrors.isEmpty()) {
+        console.log('Validation errors:', validationErrors.array());
+        return res.status(400).json({
+          success: false,
+          errors: validationErrors.array(),
+        });
+      }
+
+      const { name, email, password } = req.body;
+      console.log('Registration attempt for:', email);
+
       // Guard: Check if user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
+        console.log('User already exists:', email);
         return res.status(400).json({
           success: false,
           message: 'User already exists with this email',
@@ -75,18 +78,21 @@ exports.register = [
         password,
       });
 
+      console.log('User created successfully:', newUser._id);
       const authToken = generateAuthToken(newUser._id);
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         token: authToken,
         user: formatUserResponse(newUser),
       });
     } catch (error) {
       console.error('Registration error:', error);
-      res.status(500).json({
+      console.error('Error stack:', error.stack);
+      return res.status(500).json({
         success: false,
         message: 'Server error during registration',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
       });
     }
   },

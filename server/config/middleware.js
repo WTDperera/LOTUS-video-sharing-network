@@ -28,8 +28,8 @@ class MiddlewareConfigurator {
     // SECURITY: Remove identifying headers
     app.use(SecurityMiddleware.removeSensitiveHeaders());
     
-    // SECURITY: Helmet security headers
-    app.use(SecurityMiddleware.applySecurityMiddleware.bind(SecurityMiddleware, app));
+    // SECURITY: Apply all security middleware
+    SecurityMiddleware.applySecurityMiddleware(app);
     
     // SECURITY: CORS with strict origin validation
     const cors = require('cors');

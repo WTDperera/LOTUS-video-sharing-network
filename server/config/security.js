@@ -174,8 +174,11 @@ class SecurityConfig {
         ];
 
     return {
-      origin: true, // TEMP: Allow all origins for AWS troubleshooting
-      credentials: true,
+      origin: '*', // TEMP: Allow all origins for AWS troubleshooting
+      credentials: false, // Must be false when origin is *
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      exposedHeaders: ['Content-Range', 'X-Content-Range'],
       optionsSuccessStatus: 200,
       maxAge: 86400, // 24 hours
     };
